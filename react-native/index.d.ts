@@ -18,10 +18,10 @@
 
 import * as React from 'react';
 
-export = React;
+export = ReactNative;
+export as namespace ReactNative
 
-//react-native "extends" react
-declare module "react" {
+declare namespace ReactNative {
     export type MeasureOnSuccessCallback = (
             x: number,
             y: number,
@@ -334,7 +334,7 @@ declare module "react" {
         blur(): void;
 
         refs: {
-            [key: string]: Component<any, any>
+            [key: string]: React.Component<any, any>
         };
     }
 
@@ -1192,7 +1192,7 @@ declare module "react" {
          */
         value?: string
 
-        ref?: Ref<ViewStatic & TextInputStatic>
+        ref?: React.Ref<ViewStatic & TextInputStatic>
     }
 
     /**
@@ -1358,7 +1358,7 @@ declare module "react" {
          */
         titleColor?: string
 
-        ref?: Ref<ToolbarAndroidStatic>
+        ref?: React.Ref<ToolbarAndroidStatic>
     }
 
     /**
@@ -1857,7 +1857,7 @@ declare module "react" {
          */
         keyboardVerticalOffset: number
 
-        ref?: Ref<KeyboardAvoidingViewStatic & ViewStatic>
+        ref?: React.Ref<KeyboardAvoidingViewStatic & ViewStatic>
     }
 
     /**
@@ -2091,7 +2091,7 @@ declare module "react" {
          */
         scalesPageToFit?: boolean
 
-        ref?: Ref<WebViewStatic & ViewStatic>
+        ref?: React.Ref<WebViewStatic & ViewStatic>
     }
 
 
@@ -2180,7 +2180,7 @@ declare module "react" {
          */
         values?: string[]
 
-        ref?: Ref<SegmentedControlIOSStatic>
+        ref?: React.Ref<SegmentedControlIOSStatic>
     }
 
     /**
@@ -2359,10 +2359,10 @@ declare module "react" {
 
         style?: ViewStyle
 
-        ref?: Ref<ActivityIndicatorStatic>
+        ref?: React.Ref<ActivityIndicatorStatic>
     }
 
-    export interface ActivityIndicatorStatic extends React.NativeMethodsMixin, React.ClassicComponentClass<ActivityIndicatorProperties> {
+    export interface ActivityIndicatorStatic extends NativeMethodsMixin, React.ClassicComponentClass<ActivityIndicatorProperties> {
     }
 
 
@@ -2401,7 +2401,7 @@ declare module "react" {
 
         style?: ViewStyle
 
-        ref?: Ref<ActivityIndicatorIOSStatic>
+        ref?: React.Ref<ActivityIndicatorIOSStatic>
     }
 
     /**
@@ -2457,10 +2457,10 @@ declare module "react" {
          */
         timeZoneOffsetInMinutes?: number
 
-        ref?: Ref<DatePickerIOSStatic & ViewStatic>
+        ref?: React.Ref<DatePickerIOSStatic & ViewStatic>
     }
 
-    export interface DatePickerIOSStatic extends React.NativeMethodsMixin, React.ComponentClass<DatePickerIOSProperties> {
+    export interface DatePickerIOSStatic extends NativeMethodsMixin, React.ComponentClass<DatePickerIOSProperties> {
     }
 
     export interface DrawerSlideEvent extends NativeSyntheticEvent<NativeTouchEvent> {
@@ -2560,7 +2560,7 @@ declare module "react" {
          */
         statusBarBackgroundColor?: string
 
-        ref?: Ref<DrawerLayoutAndroidStatic & ViewStatic>
+        ref?: React.Ref<DrawerLayoutAndroidStatic & ViewStatic>
     }
 
     export interface DrawerLayoutAndroidStatic extends NativeMethodsMixin, React.ClassicComponentClass<DrawerLayoutAndroidProperties> {
@@ -2610,7 +2610,7 @@ declare module "react" {
          */
         itemStyle?: ViewStyle,
 
-        ref?: Ref<PickerStatic & ViewStatic>
+        ref?: React.Ref<PickerStatic & ViewStatic>
     }
 
     export interface PickerPropertiesAndroid extends ViewProperties, React.Props<PickerStatic> {
@@ -2638,7 +2638,7 @@ declare module "react" {
          */
         prompt?: string
 
-        ref?: Ref<PickerStatic & ViewStatic>
+        ref?: React.Ref<PickerStatic & ViewStatic>
     }
 
     /**
@@ -2670,7 +2670,7 @@ declare module "react" {
          */
         testId?: string
 
-        ref?: Ref<PickerStatic>
+        ref?: React.Ref<PickerStatic>
     }
 
     /**
@@ -2701,7 +2701,7 @@ declare module "react" {
         onValueChange?: ( value: string | number ) => void
         selectedValue?: string | number
 
-        ref?: Ref<PickerIOSStatic & ViewStatic>
+        ref?: React.Ref<PickerIOSStatic & ViewStatic>
     }
 
     /**
@@ -2752,7 +2752,7 @@ declare module "react" {
          */
         testID?: string
 
-        ref?: Ref<ProgressBarAndroidStatic>
+        ref?: React.Ref<ProgressBarAndroidStatic>
     }
     /**
      * React component that wraps the Android-only `ProgressBar`. This component is used to indicate
@@ -2797,7 +2797,7 @@ declare module "react" {
          */
         trackImage?: ImageURISource | ImageURISource[]
 
-        ref?: Ref<ProgressViewIOSStatic>
+        ref?: React.Ref<ProgressViewIOSStatic>
     }
     export interface ProgressViewIOSStatic extends NativeMethodsMixin, React.ClassicComponentClass<ProgressViewIOSProperties> {
     }
@@ -2819,7 +2819,7 @@ declare module "react" {
          */
         titleColor?: string
 
-        ref?: Ref<RefreshControlStatic & ViewStatic>
+        ref?: React.Ref<RefreshControlStatic & ViewStatic>
     }
 
     export interface RefreshControlPropertiesAndroid extends ViewProperties, React.Props<RefreshControlStatic> {
@@ -2850,7 +2850,7 @@ declare module "react" {
          */
         progressViewOffset?: number
 
-        ref?: Ref<RefreshControlStatic & ViewStatic>
+        ref?: React.Ref<RefreshControlStatic & ViewStatic>
     }
 
     export interface RefreshControlProperties extends RefreshControlPropertiesIOS, RefreshControlPropertiesAndroid, React.Props<RefreshControl> {
@@ -2865,7 +2865,7 @@ declare module "react" {
          */
         refreshing: boolean
 
-        ref?: Ref<RefreshControlStatic>
+        ref?: React.Ref<RefreshControlStatic>
     }
 
     /**
@@ -2881,7 +2881,7 @@ declare module "react" {
     }
 
     export interface RecyclerViewBackedScrollViewProperties extends ScrollViewProperties, React.Props<RecyclerViewBackedScrollViewStatic> {
-        ref?: Ref<RecyclerViewBackedScrollViewProperties & ScrollViewProperties>
+        ref?: React.Ref<RecyclerViewBackedScrollViewProperties & ScrollViewProperties>
     }
 
     /**
@@ -2964,7 +2964,7 @@ declare module "react" {
          */
         trackImage?: ImageURISource
 
-        ref?: Ref<SliderStatic>
+        ref?: React.Ref<SliderStatic>
     }
 
     export interface SliderProperties extends SliderPropertiesIOS, React.Props<SliderStatic> {
@@ -3064,7 +3064,7 @@ declare module "react" {
          */
         value?: boolean
 
-        ref?: Ref<SwitchIOSStatic>
+        ref?: React.Ref<SwitchIOSStatic>
     }
 
     /**
@@ -3341,7 +3341,7 @@ declare module "react" {
 
     }
 
-    export interface ImageStatic extends React.NativeMethodsMixin, React.ComponentClass<ImageProperties> {
+    export interface ImageStatic extends NativeMethodsMixin, React.ComponentClass<ImageProperties> {
         resizeMode: ImageResizeMode
         getSize(uri: string, success: (width: number, height: number) => void, failure: (error: any) => void): any
         prefetch(url: string): any
@@ -3482,7 +3482,7 @@ declare module "react" {
          */
         stickyHeaderIndices?: number[]
 
-        ref?: Ref<ListViewStatic & ScrollViewStatic & ViewStatic>
+        ref?: React.Ref<ListViewStatic & ScrollViewStatic & ViewStatic>
     }
 
 
@@ -3534,12 +3534,12 @@ declare module "react" {
         onBlur?: () => any,
         title?: string
         subtitle?: string
-        leftCalloutView?: ReactElement<any>
-        rightCalloutView?: ReactElement<any>
-        detailCalloutView?: ReactElement<any>
+        leftCalloutView?: React.ReactElement<any>
+        rightCalloutView?: React.ReactElement<any>
+        detailCalloutView?: React.ReactElement<any>
         tintColor?: string
         image?: ImageURISource
-        view?: ReactElement<any>
+        view?: React.ReactElement<any>
         hasLeftCallout?: boolean
         hasRightCallout?: boolean
         onLeftCalloutPress?: () => void
@@ -3684,13 +3684,13 @@ declare module "react" {
          */
         zoomEnabled?: boolean
 
-        ref?: Ref<MapViewStatic & ViewStatic>
+        ref?: React.Ref<MapViewStatic & ViewStatic>
     }
 
     /**
      * @see https://facebook.github.io/react-native/docs/mapview.html#content
      */
-    export interface MapViewStatic extends React.NativeMethodsMixin, React.ComponentClass<MapViewProperties> {
+    export interface MapViewStatic extends NativeMethodsMixin, React.ComponentClass<MapViewProperties> {
         PinColors: {
             RED: string,
             GREEN: string,
@@ -4803,7 +4803,7 @@ declare module "react" {
          */
         title?: string
 
-        ref?: Ref<TabBarItemStatic & ViewStatic>
+        ref?: React.Ref<TabBarItemStatic & ViewStatic>
     }
 
     export interface TabBarItemStatic extends React.ComponentClass<TabBarItemProperties> {
@@ -4845,7 +4845,7 @@ declare module "react" {
          */
         unselectedTintColor?: string
 
-        ref?: Ref<TabBarIOSStatic & ViewStatic>
+        ref?: React.Ref<TabBarIOSStatic & ViewStatic>
     }
 
     export interface TabBarIOSStatic extends React.ComponentClass<TabBarIOSProperties> {
@@ -5596,11 +5596,11 @@ declare module "react" {
          */
         refreshControl?: React.ReactElement<RefreshControlProperties>
 
-        ref?: Ref<ScrollViewStatic & ViewStatic>
+        ref?: React.Ref<ScrollViewStatic & ViewStatic>
     }
 
     export interface ScrollViewProps extends ScrollViewProperties, React.Props<ScrollViewStatic> {
-        ref?: Ref<ScrollViewStatic>
+        ref?: React.Ref<ScrollViewStatic>
     }
 
     interface ScrollViewStatic extends ScrollResponderMixin, React.ComponentClass<ScrollViewProps> {
@@ -5672,7 +5672,7 @@ declare module "react" {
         // A name to identify the individual instance to the SnapshotView
         testIdentifier : string,
 
-        ref?: Ref<ViewStatic & SnapshotViewIOSStatic>
+        ref?: React.Ref<ViewStatic & SnapshotViewIOSStatic>
     }
 
     export interface SnapshotViewIOSStatic extends NativeMethodsMixin, React.ComponentClass<SnapshotViewIOSProperties> {}
@@ -6116,7 +6116,7 @@ declare module "react" {
         disabled?: boolean;
     }
 
-    export interface ButtonStatic extends ComponentClass<ButtonProperties> {
+    export interface ButtonStatic extends React.ComponentClass<ButtonProperties> {
     }
 
     export type CameraRollGroupType = "Album" | "All" | "Event" | "Faces" | "Library" | "PhotoStream" | "SavedPhotos";
@@ -7008,7 +7008,7 @@ declare module "react" {
          * @platform ios
          */
         takeSnapshot: (
-            view ?: 'window' | ReactElement<any> | number,
+            view ?: 'window' | React.ReactElement<any> | number,
             options ?: {
                 width ?: number,
                 height ?: number,
@@ -7035,7 +7035,7 @@ declare module "react" {
          */
         tintColor?: string
 
-        ref?: Ref<SwitchStatic>
+        ref?: React.Ref<SwitchStatic>
     }
 
     export interface SwitchProperties extends SwitchPropertiesIOS, React.Props<SwitchStatic> {
@@ -8294,13 +8294,13 @@ declare module "react" {
     //
     // Prop Types
     //
-    export var ColorPropType: Requireable<any>
-    export var EdgeInsetsPropType: Requireable<any>
-    export var PointPropType: Requireable<any>
+    export var ColorPropType: React.Requireable<any>
+    export var EdgeInsetsPropType: React.Requireable<any>
+    export var PointPropType: React.Requireable<any>
 }
 
 declare global {
-    const global: React.GlobalStatic;
+    const global: ReactNative.GlobalStatic;
     function require(name: string): any;
 }
 
