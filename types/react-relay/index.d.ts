@@ -23,7 +23,6 @@ export type ConcreteFragment = any;
 export type ConcreteBatch = any;
 export type ConcreteFragmentDefinition = object;
 export type ConcreteOperationDefinition = object;
-export type ReactBaseComponent<T> = React.ComponentClass<T> | React.StatelessComponent<T>;
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // RelayProp
@@ -86,9 +85,9 @@ export class QueryRenderer extends ReactRelayQueryRenderer {}
 // createFragmentContainer
 // ~~~~~~~~~~~~~~~~~~~~~
 export function createFragmentContainer<T>(
-    Component: ReactBaseComponent<T>,
+    Component: React.ComponentType<T>,
     fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap
-): ReactBaseComponent<T>;
+): React.ComponentType<T>;
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // createPaginationContainer
@@ -133,13 +132,13 @@ export interface ConnectionConfig<T> {
     query: GraphQLTaggedNode;
 }
 export function createPaginationContainer<T>(
-    Component: ReactBaseComponent<T>,
+    Component: React.ComponentType<T>,
     fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
     connectionConfig: ConnectionConfig<T>
-): ReactBaseComponent<T>;
+): React.ComponentType<T>;
 
 // ~~~~~~~~~~~~~~~~~~~~~
-// createFragmentContainer
+// createRefetchContainer
 // ~~~~~~~~~~~~~~~~~~~~~
 export interface RefetchOptions {
     force?: boolean;
@@ -156,7 +155,7 @@ export type RelayRefetchProp = RelayProp & {
     ): RelayRuntimeTypes.Disposable;
 };
 export function createRefetchContainer<T>(
-    Component: ReactBaseComponent<T>,
+    Component: React.ComponentType<T>,
     fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
     taggedNode: GraphQLTaggedNode
-): ReactBaseComponent<T>;
+): React.ComponentType<T>;
