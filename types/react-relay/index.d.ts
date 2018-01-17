@@ -19,7 +19,6 @@ import * as RelayRuntimeTypes from "relay-runtime";
 // ~~~~~~~~~~~~~~~~~~~~~
 // Maybe Fix
 // ~~~~~~~~~~~~~~~~~~~~~
-export type ConcreteFragment = any;
 export type ConcreteBatch = any;
 export type ConcreteFragmentDefinition = object;
 export type ConcreteOperationDefinition = object;
@@ -44,9 +43,9 @@ export interface GeneratedNodeMap {
     [key: string]: GraphQLTaggedNode;
 }
 export type GraphQLTaggedNode =
-    | (() => ConcreteFragment | ConcreteBatch)
+    | (() => RelayRuntimeTypes.ConcreteFragment | ConcreteBatch)
     | {
-          modern(): ConcreteFragment | ConcreteBatch;
+          modern(): RelayRuntimeTypes.ConcreteFragment | ConcreteBatch;
           classic(relayQL: typeof RelayQL): ConcreteFragmentDefinition | ConcreteOperationDefinition;
       };
 /**
@@ -82,12 +81,69 @@ export class ReactRelayQueryRenderer extends React.Component<QueryRendererProps,
 export class QueryRenderer extends ReactRelayQueryRenderer {}
 
 // ~~~~~~~~~~~~~~~~~~~~~
+// Container utilities
+// ~~~~~~~~~~~~~~~~~~~~~
+
+type AnyRelayProp = { relay: any };
+
+// These get emitted by relay-compiler
+export interface AbstractFragment {
+    __fragments: AbstractFragment;
+}
+
+// Turn all the properties in `F` to be of type `AbstractFragment` or `AbstractFragment[]` for @relay(plural: true)
+type AbstractFragments<F extends GeneratedNodeMap> = { [P in keyof F]: AbstractFragment | ReadonlyArray<AbstractFragment> }
+
+// Taken from https://github.com/pelotom/type-zoo
+type Diff<T extends string, U extends string> = ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T]
+type Omit<T, K extends keyof T> = Pick<T, Diff<keyof T, K>>
+type Overwrite<T, U> = Omit<T, Diff<keyof T, Diff<keyof T, keyof U>>> & U
+
+// Remove a RelayProp/RelayRefetchProp/RelayPaginationProp
+type OmitRelayProp<P extends AnyRelayProp> = Omit<P, "relay">;
+
+// Turn all properties in P that exist in `F` to abstract fragments
+type OmitFragmentProps<P, F extends GeneratedNodeMap> = Overwrite<P, AbstractFragments<F>>
+
+// ~~~~~~~~~~~~~~~~~~~~~
+// Container types
+// ~~~~~~~~~~~~~~~~~~~~~
+
+type ContainerWithFragmentAndRelayProps<P extends AnyRelayProp, F extends GeneratedNodeMap> =
+    React.ComponentType<OmitFragmentProps<OmitRelayProp<P>, F>>;
+
+type ContainerWithFragmentProps<P, F extends GeneratedNodeMap> =
+    React.ComponentType<OmitFragmentProps<P, F>>;
+
+type ContainerWithRelayProp<P extends AnyRelayProp> =
+    React.ComponentType<OmitRelayProp<P>>;
+
+type Container<P> =
+    React.ComponentType<P>;
+
+// ~~~~~~~~~~~~~~~~~~~~~
 // createFragmentContainer
 // ~~~~~~~~~~~~~~~~~~~~~
-export function createFragmentContainer<T>(
-    Component: React.ComponentType<T>,
-    fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap
-): React.ComponentType<T>;
+
+export function createFragmentContainer<P extends AnyRelayProp, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F
+): ContainerWithFragmentAndRelayProps<P, F>
+
+export function createFragmentContainer<P, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F
+): ContainerWithFragmentProps<P, F>
+
+export function createFragmentContainer<P extends AnyRelayProp>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode
+): ContainerWithRelayProp<P>;
+
+export function createFragmentContainer<P>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode
+): Container<P>;
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // createPaginationContainer
@@ -131,19 +187,40 @@ export interface ConnectionConfig<T> {
     ): RelayRuntimeTypes.Variables;
     query: GraphQLTaggedNode;
 }
-export function createPaginationContainer<T>(
-    Component: React.ComponentType<T>,
-    fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-    connectionConfig: ConnectionConfig<T>
-): React.ComponentType<T>;
+
+export function createPaginationContainer<P extends AnyRelayProp, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F,
+    connectionConfig: ConnectionConfig<P>
+): ContainerWithFragmentAndRelayProps<P, F>;
+
+export function createPaginationContainer<P, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F,
+    connectionConfig: ConnectionConfig<P>
+): ContainerWithFragmentProps<P, F>;
+
+export function createPaginationContainer<P extends AnyRelayProp>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode,
+    connectionConfig: ConnectionConfig<P>
+): ContainerWithRelayProp<P>;
+
+export function createPaginationContainer<P>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode,
+    connectionConfig: ConnectionConfig<P>
+): Container<P>;
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // createRefetchContainer
 // ~~~~~~~~~~~~~~~~~~~~~
+
 export interface RefetchOptions {
     force?: boolean;
     rerunParamExperimental?: RelayRuntimeTypes.RerunParam;
 }
+
 export type RelayRefetchProp = RelayProp & {
     refetch(
         refetchVariables:
@@ -154,8 +231,27 @@ export type RelayRefetchProp = RelayProp & {
         options?: RefetchOptions
     ): RelayRuntimeTypes.Disposable;
 };
-export function createRefetchContainer<T>(
-    Component: React.ComponentType<T>,
-    fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+
+export function createRefetchContainer<P extends AnyRelayProp, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F,
     taggedNode: GraphQLTaggedNode
-): React.ComponentType<T>;
+): ContainerWithFragmentAndRelayProps<P, F>;
+
+export function createRefetchContainer<P, F extends GeneratedNodeMap>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: F,
+    taggedNode: GraphQLTaggedNode
+): ContainerWithFragmentProps<P, F>;
+
+export function createRefetchContainer<P extends AnyRelayProp>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode,
+    taggedNode: GraphQLTaggedNode
+): ContainerWithRelayProp<P>;
+
+export function createRefetchContainer<P>(
+    Component: React.ComponentType<P>,
+    fragmentSpec: GraphQLTaggedNode,
+    taggedNode: GraphQLTaggedNode
+): Container<P>;

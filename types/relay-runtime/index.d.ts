@@ -17,7 +17,6 @@ export type RelayConcreteNode = any;
 export type RelayMutationTransaction = any;
 export type RelayMutationRequest = any;
 export type RelayQueryRequest = any;
-export type ConcreteFragment = any;
 export type ConcreteBatch = any;
 export type ConcreteFragmentDefinition = object;
 export type ConcreteOperationDefinition = object;
@@ -31,6 +30,19 @@ export type ConcreteOperationDefinition = object;
  * but have no definition in Relay's types. Suppressing for now.
  */
 export type RelayContainer = any;
+
+// ~~~~~~~~~~~~~~~~~~~~~
+// Used in artifacts
+// emitted by
+// relay-compiler
+// ~~~~~~~~~~~~~~~~~~~~~
+// File: https://github.com/facebook/relay/blob/fe0e70f10bbcba1fff89911313ea69f24569464b/packages/relay-runtime/util/RelayConcreteNode.js
+export type ConcreteFragment = any;
+export type ConcreteRequest = any;
+export type ConcreteBatchRequest = any;
+
+// File: https://github.com/facebook/relay/blob/fe0e70f10bbcba1fff89911313ea69f24569464b/packages/relay-runtime/store/RelayStoreTypes.js#L47
+export type FragmentReference = never;
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // RelayQL
