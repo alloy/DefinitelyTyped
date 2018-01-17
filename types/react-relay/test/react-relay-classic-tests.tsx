@@ -1,15 +1,14 @@
 import * as React from "react";
 import * as Relay from "react-relay/classic";
 
+import { CompatContainer } from "./react-relay-compat-tests";
+
 interface Props {
     text: string;
     userId: string;
 }
 
-// tslint:disable-next-line no-empty-interface
-interface Response {}
-
-export default class AddTweetMutation extends Relay.Mutation<Props, Response> {
+export default class AddTweetMutation extends Relay.Mutation<Props, {}> {
     getMutation() {
         return Relay.QL`mutation{addTweet}`;
     }
@@ -61,6 +60,7 @@ const ArtworkContainer = Relay.createContainer(Artwork, {
         artwork: () => Relay.QL`
             fragment on Artwork {
                 title
+                ${CompatContainer.getFragment("whatever")}
             }
         `,
     },
@@ -80,7 +80,7 @@ class StubbedArtwork extends React.Component {
                 setVariables: () => {},
                 forceFetch: () => {},
                 hasOptimisticUpdate: () => false,
-                getPendingTransactions: (): Relay.RelayMutationTransaction[] => [],
+                getPendingTransactions: (): any => undefined,
                 commitUpdate: () => {},
             },
         };

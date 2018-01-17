@@ -1,10 +1,8 @@
 import * as React from "react";
-import { Environment, Network, RecordSource, Store, ConnectionHandler } from "relay-runtime";
+import { Environment, Network, RecordSource, Store, ConnectionHandler, FragmentReference } from "relay-runtime";
 
-////////////////////////////
-//  RELAY MODERN TESTS
-///////////////////////////
 import {
+    AbstractFragment,
     graphql,
     commitMutation,
     createFragmentContainer,
@@ -13,7 +11,7 @@ import {
     requestSubscription,
     QueryRenderer,
     RelayRefetchProp,
-    RelayPaginationProp
+    RelayPaginationProp,
 } from "react-relay";
 
 // ~~~~~~~~~~~~~~~~~~~~~
@@ -57,114 +55,196 @@ const MyQueryRenderer = (props: { name: string }) => (
 // ~~~~~~~~~~~~~~~~~~~~~
 // Modern FragmentContainer
 // ~~~~~~~~~~~~~~~~~~~~~
-const MyFragmentContainer = createFragmentContainer(
-    class TodoListView extends React.Component {
+
+() => {
+    // relay-compiler artifact
+    interface TodoItem_item {
+        text: string;
+        isComplete: boolean;
+        __fragments: AbstractFragment;
+    }
+
+    interface Props {
+        aRequiredProp: true;
+        item: TodoItem_item;
+    }
+
+    class MyComponent extends React.Component<Props> {
         render() {
             return <div />;
         }
-    },
-    {
-        item: graphql`
-            fragment TodoItem_item on Todo {
-                text
-                isComplete
-            }
-        `,
     }
-);
+
+    const MyFragmentContainer = createFragmentContainer(
+        MyComponent,
+        {
+            item: graphql`
+                fragment TodoItem_item on Todo {
+                    text
+                    isComplete
+                }
+            `,
+        }
+    );
+
+    function shouldOnlyNeedToPassAbstractFragmentProps(item: AbstractFragment) {
+        <MyFragmentContainer aRequiredProp={true} item={item} />;
+    }
+
+    function shouldAcceptFragmentProps(item: AbstractFragment) {
+        <MyFragmentContainer aRequiredProp={true} item={item} />;
+    }
+};
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // Modern RefetchContainer
 // ~~~~~~~~~~~~~~~~~~~~~
-interface StoryInterface {
-    id: string;
-}
-interface FeedStoriesProps {
-    relay: RelayRefetchProp;
-    feed: {
-        stories: { edges: Array<{ node: StoryInterface }> };
-    };
-}
-class Story extends React.Component<{ story: StoryInterface }> {}
-class FeedStories extends React.Component<FeedStoriesProps> {
-    render() {
-        return (
-            <div>
-                {this.props.feed.stories.edges.map(edge => <Story story={edge.node} key={edge.node.id} />)}
-                <button onClick={() => this._loadMore} title="Load More" />
-            </div>
-        );
+
+() => {
+    // relay-compiler artifact
+    type Story_stories = ReadonlyArray<{
+        title: string;
+    }>;
+
+    interface StoriesProps {
+        aRequiredProp: true;
+        stories: Story_stories;
     }
 
-    _loadMore() {
-        // Increments the number of stories being rendered by 10.
-        const refetchVariables = (fragmentVariables: { count: number }) => ({
-            count: fragmentVariables.count + 10,
-        });
-        this.props.relay.refetch(refetchVariables);
-    }
-}
+    class Stories extends React.Component<StoriesProps> {}
 
-const FeedRefetchContainer = createRefetchContainer(
-    FeedStories,
-    {
-        feed: graphql.experimental`
-            fragment FeedStories_feed on Feed @argumentDefinitions(count: { type: "Int", defaultValue: 10 }) {
-                stories(first: $count) {
-                    edges {
-                        node {
-                            id
-                            ...Story_story
+    const StoriesContainer = createFragmentContainer(Stories, {
+        stories: graphql`
+            fragment Story_stories on StoryEdge @relay(plural: true) {
+                title
+            }
+        `
+    });
+
+    // relay-compiler artifact
+    interface FeedStories_feed {
+        stories: {
+            edges: Array<{
+                node: {
+                    id: string;
+                }
+                __fragments: AbstractFragment;
+            }>
+        };
+    }
+
+    interface FeedStoriesProps {
+        aRequiredProp: true;
+        relay: RelayRefetchProp;
+        feed: FeedStories_feed;
+    }
+
+    class FeedStories extends React.Component<FeedStoriesProps> {
+        render() {
+            return (
+                <div>
+                    <StoriesContainer stories={this.props.feed.stories.edges} aRequiredProp={true} />
+                    <button onClick={() => this._loadMore} title="Load More" />
+                </div>
+            );
+        }
+
+        _loadMore() {
+            // Increments the number of stories being rendered by 10.
+            const refetchVariables = (fragmentVariables: { count: number }) => ({
+                count: fragmentVariables.count + 10,
+            });
+            this.props.relay.refetch(refetchVariables);
+        }
+    }
+
+    const FeedRefetchContainer = createRefetchContainer(
+        FeedStories,
+        {
+            feed: graphql.experimental`
+                fragment FeedStories_feed on Feed @argumentDefinitions(count: { type: "Int", defaultValue: 10 }) {
+                    stories(first: $count) {
+                        edges {
+                            ...Story_stories
+                            node {
+                                id
+                            }
                         }
                     }
                 }
+            `,
+        },
+        graphql.experimental`
+            query FeedStoriesRefetchQuery($count: Int) {
+                feed {
+                    ...FeedStories_feed @arguments(count: $count)
+                }
             }
-        `,
-    },
-    graphql.experimental`
-        query FeedStoriesRefetchQuery($count: Int) {
-            feed {
-                ...FeedStories_feed @arguments(count: $count)
-            }
-        }
-    `
-);
+        `
+    );
+
+    function shouldOnlyNeedToPassAbstractFragmentProps(feed: AbstractFragment) {
+        <FeedRefetchContainer aRequiredProp={true} feed={feed} />;
+    }
+};
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // Modern PaginationContainer
 // ~~~~~~~~~~~~~~~~~~~~~
-interface FeedProps {
-    user: { feed: { edges: Array<{ node: StoryInterface }> } };
-    relay: RelayPaginationProp;
-}
-class Feed extends React.Component<FeedProps> {
-    render() {
-        return (
-            <div>
-                {this.props.user.feed.edges.map(edge => <Story story={edge.node} key={edge.node.id} />)}
-                <button onClick={() => this._loadMore()} title="Load More" />
-            </div>
-        );
+
+() => {
+    // relay-compiler artifact
+    interface Story_story {
+        title: string;
     }
 
-    _loadMore() {
-        if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
-            return;
+    interface StoryProps {
+        aRequiredProp: true;
+        story: Story_story;
+    }
+
+    class Story extends React.Component<StoryProps> {}
+
+    const StoryContainer = createFragmentContainer(Story, graphql`
+        fragment Story_story on Story {
+            title
+        }
+    `);
+
+    interface FeedProps {
+        aRequiredProp: true;
+        user: { feed: { edges: Array<{ node: { id: string } }> } };
+        relay: RelayPaginationProp;
+    }
+    class Feed extends React.Component<FeedProps> {
+        render() {
+            return (
+                <div>
+                    {this.props.user.feed.edges.map(edge => {
+                        return <StoryContainer aRequiredProp={true} story={edge.node as any} key={edge.node.id} />;
+                    })}
+                    <button onClick={() => this._loadMore()} title="Load More" />
+                </div>
+            );
         }
 
-        this.props.relay.loadMore(
-            10, // Fetch the next 10 feed items
-            e => {
-                console.log(e);
+        _loadMore() {
+            if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
+                return;
             }
-        );
-    }
-}
 
-const FeedPaginationContainer = createPaginationContainer(
-    Feed,
-    {
-        user: graphql`
+            this.props.relay.loadMore(
+                10, // Fetch the next 10 feed items
+                e => {
+                    console.log(e);
+                }
+            );
+        }
+    }
+
+    const FeedPaginationContainer = createPaginationContainer(
+        Feed,
+        graphql`
             fragment Feed_user on User {
                 feed(
                     first: $count
@@ -180,42 +260,46 @@ const FeedPaginationContainer = createPaginationContainer(
                 }
             }
         `,
-    },
-    {
-        direction: "forward",
-        getConnectionFromProps(props) {
-            return props.user && props.user.feed;
-        },
-        getFragmentVariables(prevVars, totalCount) {
-            return {
-                ...prevVars,
-                count: totalCount,
-            };
-        },
-        getVariables(props, { count, cursor }, fragmentVariables) {
-            return {
-                count,
-                cursor,
-                // in most cases, for variables other than connection filters like
-                // `first`, `after`, etc. you may want to use the previous values.
-                orderBy: fragmentVariables.orderBy,
-            };
-        },
-        query: graphql`
-            query FeedPaginationQuery($count: Int!, $cursor: String, $orderby: String!) {
-                user {
-                    # You could reference the fragment defined previously.
-                    ...Feed_user
+        {
+            direction: "forward",
+            getConnectionFromProps(props) {
+                return props.user && props.user.feed;
+            },
+            getFragmentVariables(prevVars, totalCount) {
+                return {
+                    ...prevVars,
+                    count: totalCount,
+                };
+            },
+            getVariables(props, { count, cursor }, fragmentVariables) {
+                return {
+                    count,
+                    cursor,
+                    // in most cases, for variables other than connection filters like
+                    // `first`, `after`, etc. you may want to use the previous values.
+                    orderBy: fragmentVariables.orderBy,
+                };
+            },
+            query: graphql`
+                query FeedPaginationQuery($count: Int!, $cursor: String, $orderby: String!) {
+                    user {
+                        # You could reference the fragment defined previously.
+                        ...Feed_user
+                    }
                 }
-            }
-        `,
+            `,
+        }
+    );
+
+    function shouldOnlyNeedToPassAbstractFragmentProps(user: AbstractFragment) {
+        <FeedPaginationContainer aRequiredProp={true} user={user as any} />;
     }
-);
+};
 
 // ~~~~~~~~~~~~~~~~~~~~~
 // Modern Mutations
 // ~~~~~~~~~~~~~~~~~~~~~
-const mutation = graphql`
+export const mutation = graphql`
     mutation MarkReadNotificationMutation($input: MarkReadNotificationData!) {
         markReadNotification(data: $input) {
             notification {
@@ -225,7 +309,7 @@ const mutation = graphql`
     }
 `;
 
-const optimisticResponse = {
+export const optimisticResponse = {
     markReadNotification: {
         notification: {
             seenState: "SEEN",
@@ -233,7 +317,7 @@ const optimisticResponse = {
     },
 };
 
-const configs = [
+export const configs = [
     {
         type: "NODE_DELETE" as "NODE_DELETE",
         deletedIDFieldName: "destroyedShipId",
@@ -325,147 +409,3 @@ requestSubscription(
         },
     }
 );
-
-////////////////////////////
-//  RELAY COMPAT TESTS
-///////////////////////////
-import {
-    QueryRenderer as CompatQueryRenderer,
-    createFragmentContainer as createFragmentContainerCompat,
-    commitMutation as commitMutationCompat,
-    CompatEnvironment,
-    RelayPaginationProp as RelayPaginationPropCompat,
-} from "react-relay/compat";
-
-// testting compat mutation with classic environment
-function markNotificationAsReadCompat(environment: CompatEnvironment, source: string, storyID: string) {
-    const variables = {
-        input: {
-            source,
-            storyID,
-        },
-    };
-
-    commitMutationCompat(environment, {
-        configs,
-        mutation,
-        optimisticResponse,
-        variables,
-        onCompleted: (response, errors) => {
-            console.log("Response received from server.");
-        },
-        onError: err => console.error(err),
-        updater: (store, data) => {
-            const field = store.get(storyID);
-            if (field) {
-                field.setValue(data.story, "story");
-            }
-        }
-    });
-}
-
-interface CompatProps {
-    relay: RelayPaginationPropCompat;
-}
-
-export class CompatComponent extends React.Component<CompatProps> {
-    markNotificationAsRead(source: string, storyID: string) {
-        markNotificationAsReadCompat(this.props.relay.environment, source, storyID);
-    }
-
-    render() {
-        return (<div/>);
-    }
-}
-
-const CompatContainer = createFragmentContainerCompat(CompatComponent, {});
-
-////////////////////////////
-//  RELAY-CLASSIC TESTS
-///////////////////////////
-import * as Relay from "react-relay/classic";
-
-interface Props {
-    text: string;
-    userId: string;
-}
-
-export default class AddTweetMutation extends Relay.Mutation<Props, {}> {
-    getMutation() {
-        return Relay.QL`mutation{addTweet}`;
-    }
-
-    getFatQuery() {
-        return Relay.QL`
-            fragment on AddTweetPayload {
-                tweetEdge
-                user
-            }
-        `;
-    }
-
-    getConfigs() {
-        return [
-            {
-                type: "RANGE_ADD",
-                parentName: "user",
-                parentID: this.props.userId,
-                connectionName: "tweets",
-                edgeName: "tweetEdge",
-                rangeBehaviors: {
-                    "": "append",
-                },
-            },
-        ];
-    }
-
-    getVariables() {
-        return this.props;
-    }
-}
-
-interface ArtworkProps {
-    artwork: {
-        title: string;
-    };
-    relay: Relay.RelayProp;
-}
-
-class Artwork extends React.Component<ArtworkProps> {
-    render() {
-        return <a href={`/artworks/${this.props.relay.variables.artworkID}`}>{this.props.artwork.title}</a>;
-    }
-}
-
-const ArtworkContainer = Relay.createContainer(Artwork, {
-    fragments: {
-        artwork: () => Relay.QL`
-            fragment on Artwork {
-                title
-                ${ CompatContainer.getFragment('whatever') }
-            }
-        `,
-    },
-});
-
-class StubbedArtwork extends React.Component {
-    render() {
-        const props = {
-            artwork: { title: "CHAMPAGNE FORMICA FLAG" },
-            relay: {
-                route: {
-                    name: "champagne",
-                },
-                variables: {
-                    artworkID: "champagne-formica-flag",
-                },
-                setVariables: () => {},
-                forceFetch: () => {},
-                hasOptimisticUpdate: () => false,
-                getPendingTransactions: (): any => undefined,
-                commitUpdate: () => {},
-            },
-        };
-        return <ArtworkContainer {...props} />;
-    }
-}
