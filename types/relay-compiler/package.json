@@ -1,6 +1,26 @@
 {
-  "private": true,
-  "dependencies": {
-    "graphql": "^14.5.3"
-  }
+    "name": "@types/relay-compiler",
+    "version": "6.0.0",
+    "description": "TypeScript definitions for relay-compiler",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "n1ru4l",
+            "url": "https://github.com/n1ru4l",
+            "githubUsername": "n1ru4l"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/relay-compiler"
+    },
+    "scripts": {},
+    "dependencies": {
+        "graphql": "^14.5.3"
+    },
+    "typesPublisherContentHash": "ce06b5e8fe50a916351d874eb5f0a93be4d3a78d2e737af68f01f7547c28ca8c",
+    "typeScriptVersion": "3.0"
 }

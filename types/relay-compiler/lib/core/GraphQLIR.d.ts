@@ -274,8 +274,8 @@ export interface Request {
 }
 
 export interface Root {
-  argumentDefinitions: Readonly<LocalArgumentDefinition>;
-  directives: Readonly<Directive>;
+  argumentDefinitions: ReadonlyArray<LocalArgumentDefinition>;
+  directives: ReadonlyArray<Directive>;
   kind: 'Root';
   loc: Location;
   metadata: Metadata;
