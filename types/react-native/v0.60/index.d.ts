@@ -1,4 +1,4 @@
-// Type definitions for react-native 0.62
+// Type definitions for react-native 0.60
 // Project: https://github.com/facebook/react-native
 // Definitions by: Eloy Durán <https://github.com/alloy>
 //                 HuHuanming <https://github.com/huhuanming>
@@ -26,9 +26,6 @@
 //                 Romain Faust <https://github.com/romain-faust>
 //                 Be Birchall <https://github.com/bebebebebe>
 //                 Jesse Katsumata <https://github.com/Naturalclar>
-//                 Xianming Zhong <https://github.com/chinesedfan>
-//                 Valentyn Tolochko <https://github.com/vtolochk>
-//                 Sergey Sychev <https://github.com/SychevSP>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.8
 
@@ -1963,7 +1960,7 @@ export interface ViewPropsAndroid {
 }
 
 type Falsy = undefined | null | false;
-interface RecursiveArray<T> extends Array<T | ReadonlyArray<T> | RecursiveArray<T>> {}
+interface RecursiveArray<T> extends Array<T | RecursiveArray<T>> {}
 /** Keep a brand of 'T' so that calls to `StyleSheet.flatten` can take `RegisteredStyle<T>` and return `T`. */
 type RegisteredStyle<T> = number & { __registeredStyleBrand: T };
 export type StyleProp<T> = T | RegisteredStyle<T> | RecursiveArray<T | RegisteredStyle<T> | Falsy> | Falsy;
@@ -5129,14 +5126,6 @@ export namespace StyleSheet {
      * the alternative use.
      */
     export function flatten<T>(style?: StyleProp<T>): T;
-
-    /**
-     * Combines two styles such that style2 will override any styles in style1.
-     * If either style is falsy, the other one is returned without allocating
-     * an array, saving allocations and maintaining reference equality for
-     * PureComponent checks.
-     */
-    export function compose<T>(style1: StyleProp<T> | Array<StyleProp<T>>, style2: StyleProp<T> | Array<StyleProp<T>>): StyleProp<T>;
 
     /**
      * WARNING: EXPERIMENTAL. Breaking changes will probably happen a lot and will
@@ -8868,7 +8857,7 @@ export function findNodeHandle(
 
 export function processColor(color: any): number;
 
-export const YellowBox: React.ComponentClass<any, any> & { ignoreWarnings: (warnings: string[]) => void };
+export const YellowBox: React.Component<any, any> & { ignoreWarnings: (warnings: string[]) => void };
 
 //////////////////////////////////////////////////////////////////////////
 //
