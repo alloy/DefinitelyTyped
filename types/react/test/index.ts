@@ -376,6 +376,14 @@ const myComponent = component as MyComponent;
 myComponent.reset();
 
 //
+// Config
+// --------------------------------------------------------------------------
+
+type ConfigTest_Result = React.Config<{ foo: number; bar: number; }, { foo: number; }>;
+const ConfigTest_assertion1: ConfigTest_Result = { bar: 42 };
+const ConfigTest_assertion2: ConfigTest_Result = { foo: 42, bar: 42 };
+
+//
 // Refs
 // --------------------------------------------------------------------------
 

@@ -125,6 +125,13 @@ declare namespace React {
                 : never
             : never;
 
+    /**
+     * Calculates a config object from props and default props. This is most useful for annotating HOCs that are abstracted over configs.
+     *
+     * @see https://flow.org/en/docs/react/types/#toc-react-config
+     */
+    type Config<Props extends DefaultProps, DefaultProps extends {}> = Omit<Props, keyof DefaultProps> & Partial<DefaultProps>;
+
     type ComponentState = any;
 
     type Key = string | number;
