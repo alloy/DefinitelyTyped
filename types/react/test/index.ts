@@ -384,6 +384,38 @@ const ConfigTest_assertion1: ConfigTest_Result = { bar: 42 };
 const ConfigTest_assertion2: ConfigTest_Result = { foo: 42, bar: 42 };
 
 //
+// AbstractComponent
+// --------------------------------------------------------------------------
+
+const AbstractComponentTest_Func: React.FunctionComponent<{ foo: string }> = props => React.createElement(
+    "div", null, props.foo
+);
+class AbstractComponentTest_Class extends React.Component<{ foo: string }> {
+    someMethod(): boolean {
+        return true;
+    }
+}
+
+const AbstractComponentTest_Func1: React.AbstractComponent<{ foo: string }> = AbstractComponentTest_Func;
+// tslint:disable-next-line:use-default-type-parameter
+const AbstractComponentTest_Func2: React.AbstractComponent<{ foo: string }, void> = AbstractComponentTest_Func;
+const AbstractComponentTest_Func3: React.AbstractComponent<{ foo: string }, number> = AbstractComponentTest_Func; // $ExpectError
+React.createElement(AbstractComponentTest_Func1, { foo: "bar" });
+React.createElement(AbstractComponentTest_Func1, {}); // $ExpectError
+React.createElement(AbstractComponentTest_Func1, { foo: 42 }); // $ExpectError
+
+const AbstractComponentTest_Class1: React.AbstractComponent<{ foo: string }, { someMethod: () => boolean }> = AbstractComponentTest_Class;
+const AbstractComponentTest_Class2: React.AbstractComponent<{ foo: string }, { someMethod: () => boolean }> = class { someMethod = () => true; }; // $ExpectError
+const AbstractComponentTest_Class3: React.AbstractComponent<{ foo: string }, { someMethod: () => boolean }> = class extends React.Component<{ foo: string }> { }; // $ExpectError
+const AbstractComponentTest_Class4: React.AbstractComponent<{ foo: string }, { someMethod: () => boolean }> = class extends React.Component<{ foo: string }> { someMethod = () => 42; }; // $ExpectError
+React.createElement(AbstractComponentTest_Class1, { foo: "bar" });
+React.createElement(AbstractComponentTest_Class1, {}); // $ExpectError
+React.createElement(AbstractComponentTest_Class1, { foo: 42 }); // $ExpectError
+
+const AbstractComponentTest_ClassRef = React.createRef<typeof AbstractComponentTest_Class1>(); // $ExpectType RefObject<{ someMethod: () => boolean; }>
+React.createElement(AbstractComponentTest_Class1, { foo: "bar", ref: AbstractComponentTest_ClassRef });
+
+//
 // Refs
 // --------------------------------------------------------------------------
 
@@ -479,6 +511,14 @@ type SVGIntrinsicAsRef = React.ElementRef<'svg'>; // $ExpectType SVGSVGElement
 type ForwardingRefComponentAsRef = React.ElementRef<typeof ForwardingRefComponent>; // $ExpectType RefComponent
 type MemoizedForwardingRefComponentAsRef = React.ElementRef<typeof MemoizedForwardingRefComponent>; // $ExpectType RefComponent
 type LazyComponentAsRef = React.ElementRef<typeof LazyComponent>; // $ExpectType RefComponent
+
+type AbstractComponentFuncAsRef = React.ElementRef<React.AbstractComponent<{}>>; // $ExpectType void
+const AbstractComponentTest_ForwardFunc = React.forwardRef((props: any, ref: React.Ref<{ someMethod: () => boolean }>) => {
+    return React.createElement(AbstractComponentTest_Class1, { foo: "bar", ref });
+});
+const AbstractComponentTest_FuncRef = React.createRef<typeof AbstractComponentTest_ForwardFunc>();
+React.createElement(AbstractComponentTest_ForwardFunc, { foo: "bar", ref: AbstractComponentTest_FuncRef });
+type AbstractComponentFuncWithForwardedRef = React.ElementRef<typeof AbstractComponentTest_ForwardFunc>; // $ExpectType { someMethod: () => boolean; }
 
 //
 // Attributes

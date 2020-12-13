@@ -132,6 +132,29 @@ declare namespace React {
      */
     type Config<Props extends DefaultProps, DefaultProps extends {}> = Omit<Props, keyof DefaultProps> & Partial<DefaultProps>;
 
+    interface ComponentMethods<Props> {
+        context: any;
+        props: Props;
+        state: any;
+        refs: {
+            [key: string]: React.ReactInstance;
+        };
+        setState(state: any, cb?: () => void): void;
+        render(): React.ReactNode;
+        forceUpdate(callback?: () => void): void;
+    }
+    type AbstractComponent<Config extends {}, Instance = void> =
+        | ((
+            props: PropsWithChildren<Config> & RefAttributes<Instance>,
+              context?: any
+          ) => ReactElement<any, any> | null)
+        | {
+              new (
+                props: PropsWithChildren<Config> & RefAttributes<Instance>,
+                context?: any
+              ): Instance & ComponentMethods<Config>;
+          };
+
     type ComponentState = any;
 
     type Key = string | number;
@@ -297,7 +320,7 @@ declare namespace React {
         props?: ClassAttributes<T> & P | null,
         ...children: ReactNode[]): CElement<P, T>;
     function createElement<P extends {}>(
-        type: FunctionComponent<P> | ComponentClass<P> | string,
+        type: FunctionComponent<P> | ComponentClass<P> | AbstractComponent<P, any> | string,
         props?: Attributes & P | null,
         ...children: ReactNode[]): ReactElement<P>;
 
@@ -799,7 +822,20 @@ declare namespace React {
         [propertyName: string]: any;
     }
 
-    function createRef<T>(): RefObject<T>;
+    function createRef<T>(): RefObject<
+        T extends (
+            props: infer Props,
+            context?: any
+        ) => ReactElement<any, any> | null
+            ? Props extends RefAttributes<infer Instance>
+                ? Instance
+                : never
+            : T extends { new (props: infer Props, context?: any): any }
+            ? Props extends RefAttributes<infer Instance>
+                ? Instance
+                : never
+            : T
+    >;
 
     // will show `ForwardRef(${Component.displayName || Component.name})` in devtools by default,
     // but can be given its own specific name
