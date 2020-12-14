@@ -376,12 +376,33 @@ const myComponent = component as MyComponent;
 myComponent.reset();
 
 //
-// Config
+// Props/Config
 // --------------------------------------------------------------------------
+class ElementPropsTest_Class extends React.Component<{ foo: number; bar: number }> {
+    static defaultProps: { foo: number };
+}
+
+const ElementsPropsTest_Func: React.FunctionComponent<{ bar: number, foo?: number }> =
+    ({ bar, foo = 42 }) => React.createElement('div', null, foo + bar);
+
+// TODO: Should this contain `ref` and `children`?
+type ElementPropsTest_ClassResult = React.ElementProps<typeof ElementPropsTest_Class>; // $ExpectType { foo: number; bar: number; } & React.RefAttributes<ElementPropsTest_Class>
+type ElementPropsTest_FuncResult = React.ElementProps<typeof ElementsPropsTest_Func>; // $ExpectType { foo: number; bar: number; } & { children?: React.ReactNode; }
+type ElementPropsTest_IntrinsicResult = React.ElementProps<'div'>; // $ExpectType React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>
 
 type ConfigTest_Result = React.Config<{ foo: number; bar: number; }, { foo: number; }>;
 const ConfigTest_assertion1: ConfigTest_Result = { bar: 42 };
 const ConfigTest_assertion2: ConfigTest_Result = { foo: 42, bar: 42 };
+
+type ElementConfigTest_ClassResult = React.ElementConfig<typeof ElementPropsTest_Class>;
+const ElementConfigTest_ClassAssertion1: ElementConfigTest_ClassResult = {}; // $ExpectError
+const ElementConfigTest_ClassAssertion2: ElementConfigTest_ClassResult = { bar: 42 };
+const ElementConfigTest_ClassAssertion3: ElementConfigTest_ClassResult = { foo: 42, bar: 42 };
+
+type ElementConfigTest_FuncResult = React.ElementConfig<typeof ElementsPropsTest_Func>;
+const ElementConfigTest_FuncAssertion1: ElementConfigTest_FuncResult = {}; // $ExpectError
+const ElementConfigTest_FuncAssertion2: ElementConfigTest_FuncResult = { bar: 42 };
+const ElementConfigTest_FuncAssertion3: ElementConfigTest_FuncResult = { foo: 42, bar: 42 };
 
 //
 // AbstractComponent

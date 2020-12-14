@@ -130,7 +130,7 @@ declare namespace React {
      *
      * @see https://flow.org/en/docs/react/types/#toc-react-config
      */
-    type Config<Props extends DefaultProps, DefaultProps extends {}> = Omit<Props, keyof DefaultProps> & Partial<DefaultProps>;
+    type Config<Props extends DefaultProps, DefaultProps extends {}> = Pick<Props, Exclude<keyof Props, keyof DefaultProps>> & Partial<DefaultProps>;
 
     interface ComponentMethods<Props> {
         context: any;
@@ -882,6 +882,48 @@ declare namespace React {
             : PropsWithRef<ComponentProps<T>>;
     type ComponentPropsWithoutRef<T extends ElementType> =
         PropsWithoutRef<ComponentProps<T>>;
+
+    /**
+     * Gets the props for a React element type, without preserving the optionality of `defaultProps`.
+     * `typeof Component` could be the type of a React class component, a stateless functional component, or a JSX
+     * intrinsic string. This type is used for the `props` property on `React.Element<typeof Component>`.
+     *
+     * Like `React.Element<typeof Component>`, `typeof Component` must be the type _of_ a React component so you need
+     * to use `typeof` as in `React.ElementProps<typeof MyComponent>`.
+     *
+     * @note Because `React.ElementProps` does not preserve the optionality of `defaultProps`, `React.ElementConfig`
+     *       (which does) is more often the right choice, especially for simple props pass-through as with higher-order
+     *       components.
+     *
+     * @see https://flow.org/en/docs/react/types/#toc-react-elementprops
+     */
+    type ElementProps<T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any>> = ComponentProps<T>;
+
+    /**
+     * Like `React.ElementProps<typeof Component>` this utility gets the type of a component’s props but preserves the
+     * optionality of `defaultProps`!
+     *
+     * Like `React.Element<typeof Component>`, `typeof Component` must be the type _of_ a React component so you need
+     * to use `typeof` as in `React.ElementConfig<typeof MyComponent>`.
+     *
+     * @note This does not support the `defaultProps` property on a function component. However, that will eventually
+     *       be deprecated by the React team as it can be expressed using ES6 default property initializers, which this
+     *       type does support and thus is the recommended pattern. (See https://github.com/reactjs/rfcs/pull/107)
+     *
+     * @see https://flow.org/en/docs/react/types/#toc-react-elementconfig
+     */
+    type ElementConfig<
+        T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any>
+    > = T extends {
+        defaultProps: infer DP;
+        new (props: infer P, context?: any): any;
+    }
+        ? P extends DP
+            ? Config<P, DP>
+            : never
+        : T extends ((props: infer P) => any)
+        ? P
+        : never;
 
     // will show `Memo(${Component.displayName || Component.name})` in devtools by default,
     // but can be given its own specific name
