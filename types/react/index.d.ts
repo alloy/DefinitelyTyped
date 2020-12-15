@@ -897,7 +897,7 @@ declare namespace React {
      *
      * @see https://flow.org/en/docs/react/types/#toc-react-elementprops
      */
-    type ElementProps<T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any>> = ComponentProps<T>;
+    type ElementProps<T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any>> = Pick<ComponentProps<T>, Exclude<keyof ComponentProps<T>, "children">>;
 
     /**
      * Like `React.ElementProps<typeof Component>` this utility gets the type of a component’s props but preserves the

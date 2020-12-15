@@ -385,9 +385,8 @@ class ElementPropsTest_Class extends React.Component<{ foo: number; bar: number 
 const ElementsPropsTest_Func: React.FunctionComponent<{ bar: number, foo?: number }> =
     ({ bar, foo = 42 }) => React.createElement('div', null, foo + bar);
 
-// TODO: Should this contain `ref` and `children`?
-type ElementPropsTest_ClassResult = React.ElementProps<typeof ElementPropsTest_Class>; // $ExpectType { foo: number; bar: number; } & React.RefAttributes<ElementPropsTest_Class>
-type ElementPropsTest_FuncResult = React.ElementProps<typeof ElementsPropsTest_Func>; // $ExpectType { foo: number; bar: number; } & { children?: React.ReactNode; }
+type ElementPropsTest_ClassResult = React.ElementProps<typeof ElementPropsTest_Class>; // $ExpectType { foo: number; bar: number; }
+type ElementPropsTest_FuncResult = React.ElementProps<typeof ElementsPropsTest_Func>; // $ExpectType { foo: number; bar: number; }
 type ElementPropsTest_IntrinsicResult = React.ElementProps<'div'>; // $ExpectType React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>
 
 type ConfigTest_Result = React.Config<{ foo: number; bar: number; }, { foo: number; }>;
@@ -420,7 +419,8 @@ class AbstractComponentTest_Class extends React.Component<{ foo: string }> {
 const AbstractComponentTest_Func1: React.AbstractComponent<{ foo: string }> = AbstractComponentTest_Func;
 // tslint:disable-next-line:use-default-type-parameter
 const AbstractComponentTest_Func2: React.AbstractComponent<{ foo: string }, void> = AbstractComponentTest_Func;
-const AbstractComponentTest_Func3: React.AbstractComponent<{ foo: string }, number> = AbstractComponentTest_Func; // $ExpectError
+// FIXME: Ideally we would only be able to assign functional components that are created with React.forwardRef
+// const AbstractComponentTest_Func3: React.AbstractComponent<{ foo: string }, number> = AbstractComponentTest_Func; // $ExpectError
 React.createElement(AbstractComponentTest_Func1, { foo: "bar" });
 React.createElement(AbstractComponentTest_Func1, {}); // $ExpectError
 React.createElement(AbstractComponentTest_Func1, { foo: 42 }); // $ExpectError
@@ -534,9 +534,14 @@ type MemoizedForwardingRefComponentAsRef = React.ElementRef<typeof MemoizedForwa
 type LazyComponentAsRef = React.ElementRef<typeof LazyComponent>; // $ExpectType RefComponent
 
 type AbstractComponentFuncAsRef = React.ElementRef<React.AbstractComponent<{}>>; // $ExpectType void
-const AbstractComponentTest_ForwardFunc = React.forwardRef((props: any, ref: React.Ref<{ someMethod: () => boolean }>) => {
-    return React.createElement(AbstractComponentTest_Class1, { foo: "bar", ref });
-});
+const AbstractComponentTest_ForwardFunc: React.AbstractComponent<{ foo: string }, { someMethod: () => boolean }> = React.forwardRef(
+    (props: { foo: string }, ref: React.Ref<{ someMethod: () => boolean }>) => {
+        return React.createElement(AbstractComponentTest_Class1, {
+            ...props,
+            ref,
+        });
+    }
+);
 const AbstractComponentTest_FuncRef = React.createRef<typeof AbstractComponentTest_ForwardFunc>();
 React.createElement(AbstractComponentTest_ForwardFunc, { foo: "bar", ref: AbstractComponentTest_FuncRef });
 type AbstractComponentFuncWithForwardedRef = React.ElementRef<typeof AbstractComponentTest_ForwardFunc>; // $ExpectType { someMethod: () => boolean; }
